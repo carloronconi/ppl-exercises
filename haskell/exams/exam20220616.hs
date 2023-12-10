@@ -18,6 +18,22 @@
            --        Actual type: Fpair s (Fpair s b)
     -- which means in general with apply you need to output a "flat" object due to the signature (<*>) :: f (a -> b) -> f a -> f b
 -- DO FOLDABLE AND EQ MATCH ALL CASES? -> add separate cases
+-- WHY INVERTED a AND s IN TYPE CONSTRUCTOR AND WHY Fpair TYPE CONSTRUCTOR WITH DIFFERENT # ARGS IN INSTANCE DECLARATIONS?
+-- -> looks like the classes Show, Eq VS Functor, Foldable, Applicative need different type constructors:
+--    Show, Eq need un-parametrized types, so by writing instance (Eq a) => Eq (Fpair s a) you block the type parameters (s and a) and leave no "free" parameters
+--    In fact, if instead you write only instance (Eq a) => Eq Fpair other than not having a way to say that a should implement show, you get
+--    the error:
+--         Expecting two more arguments to ‘Fpair’
+          --      Expected a type, but ‘Fpair’ has kind ‘* -> * -> *’
+--    Functor, Foldable, Applicative instead need type constructors with a single free type parameter, i.e. the type of the elements
+--    inside the "container": you can see that e.g. fmap :: (a -> b) -> f a -> f b wants a type with a single free type param. describing
+--    the type of the element contained (like in lists). So we "block" the separator type parameter s and leave as free one the contained
+--    elements type parameter a, by writing instance Functor (Fpair s).
+--    if instead we wrote instance Functor Fpair we would get:
+--        Expecting one more argument to ‘Fpair’
+          --      Expected kind ‘* -> *’, but ‘Fpair’ has kind ‘* -> * -> *’
+--    if instead we wrote instance Functor (Fpair s a) we would get:
+--        Expected kind ‘* -> *’, but ‘Fpair s a’ has kind ‘*’
 
 -- how restrict b to be instance Show? Just need to do that in methods that require it (i.e. Show)
 data Fpair s a = Pair a a | Fpair a a s
