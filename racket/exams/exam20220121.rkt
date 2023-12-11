@@ -18,19 +18,21 @@
 ; 6
 
 (define-syntax block
-  (syntax-rules (then were <-)
-    ((block (body-l...) then (body-r...) where (var <- l r)...)
+  (syntax-rules (then where <-)
+    ((block (body-l ...) then (body-r ...) where (var <- l r) ...)
      (begin
-        (let ((var l)...)
-          body-l...)
-        (let((var r)...)
-          body-r...)))))
+        (let ((var l) ...)
+          body-l ...)
+        (let((var r) ...)
+          body-r ...)))))
+
+; careful: wasn't working due to missing space before the "..."s
 
 (block
-   ((displayln (+ x y))
-   (displayln (* x y))
-   (displayln (* z z)))
-   then
-   ((displayln (+ x y))
-   (displayln (* z x)))
-   where (x <- 12 3)(y <- 8 7)(z <- 3 2))
+ ((displayln (+ x y))
+  (displayln (* x y))
+  (displayln (* z z)))
+ then
+ ((displayln (+ x y))
+  (displayln (* z x)))
+ where (x <- 12 3) (y <- 8 7) (z <- 3 2))
