@@ -64,3 +64,12 @@
     (displayln (counter)) ; 10
     (displayln (counter)) ; 12
     ))
+
+; regarding my qdoubts about why we need the line starting with "set!", we could have also:
+(define (r1 x y s . rest) ; just ignoring "rest" doesn't allow to have s be optional! so to get optional behavior need this trick
+  (lambda ()
+    (if (< x y)
+        (let ((z x))
+          (set! x (+ s x))
+          z)
+        y)))
