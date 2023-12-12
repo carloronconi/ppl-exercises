@@ -35,8 +35,5 @@
 ;(let ((fun (list-to-compose '(plus1 times2))))
 ;  (displayln (fun 3)))
 
-(define lst-of-func '(plus1 times2))
+((list-to-compose '(plus1 times2)) 3)
 
-(define composition (list-to-compose plus1 times2))
-
-(composition 3)
