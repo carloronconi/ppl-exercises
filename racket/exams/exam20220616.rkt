@@ -28,9 +28,9 @@
 |#
 
 (define (list-to-compose lst)
-(lambda (x)
-(foldr (lambda (y acc)
-(y acc)) x lst)))
+  (lambda (x)
+    (foldr (lambda (y acc)
+             (y acc)) x lst)))
 
 ;(let ((fun (list-to-compose '(plus1 times2))))
 ;  (displayln (fun 3)))
