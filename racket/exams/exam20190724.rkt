@@ -21,5 +21,6 @@ is not possible to use the named let construct in the implementation.
       (error "y must be greater or equal than x")))
 
 (split '(1 2 3 4 5 6 7 8 9) 3 7)
+(split '(1 2 3 4 5 6 7 8 9) 5 5)
 
 ; all done by myself without looking at solution, correctly!
