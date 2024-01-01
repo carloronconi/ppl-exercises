@@ -1,39 +1,41 @@
--- Consider the "fancy pair" data type (called Fpair), which encodes a pair of the same type a, and may
--- optionally have another component of some "showable" type b, e.g. the character '$'.
--- Define Fpair, parametric with respect to both a and b.
--- 1) Make Fpair an instance of Show, where the implementation of show of a fancy pair e.g. encoding
---    (x, y, '$') must return the string "[x$y]", where x is the string representation of x and y of y. If the third
---    component is not available, the standard representation is "[x, y]".
--- 2) Make Fpair an instance of Eq — of course the component of type b does not influence the actual
---    value, being only part of the representation, so pairs with different representations could be equal.
--- 3) Make Fpair an instance of Functor, Applicative and Foldable.
+{--
+Consider the "fancy pair" data type (called Fpair), which encodes a pair of the same type a, and may
+optionally have another component of some "showable" type b, e.g. the character '$'.
+Define Fpair, parametric with respect to both a and b.
+1) Make Fpair an instance of Show, where the implementation of show of a fancy pair e.g. encoding
+   (x, y, '$') must return the string "[x$y]", where x is the string representation of x and y of y. If the third
+   component is not available, the standard representation is "[x, y]".
+2) Make Fpair an instance of Eq — of course the component of type b does not influence the actual
+   value, being only part of the representation, so pairs with different representations could be equal.
+3) Make Fpair an instance of Functor, Applicative and Foldable.
 
--- MY QUESTIONS
--- DO DATA CONSTRUCTORS NEED TO HAVE DIFFERENT NAMES EVEN IF DIFFERENT NUMBER OF ARGS? -> yes
--- DOES EQ WORK MY WAY OR NEED TO USE SIMPLIFY FROM SOL? -> not using simplify but separate the cases
--- WOULD APPLICATIVE HAVE BEEN FINE LIKE I DID? I WAS THOUGHT ABOUT HOW SOL DOES IT BUT THOUGHT MY WAY MORE SIMILAR TO LISTS COMPUTING ALL PERMUTATIONS
-    -- -> no, because when compiling you get
-    --    Occurs check: cannot construct the infinite type: b ~ Fpair s b
-           --        Expected type: Fpair s b
-           --        Actual type: Fpair s (Fpair s b)
-    -- which means in general with apply you need to output a "flat" object due to the signature (<*>) :: f (a -> b) -> f a -> f b
--- DO FOLDABLE AND EQ MATCH ALL CASES? -> add separate cases
--- WHY INVERTED a AND s IN TYPE CONSTRUCTOR AND WHY Fpair TYPE CONSTRUCTOR WITH DIFFERENT # ARGS IN INSTANCE DECLARATIONS?
--- -> looks like the classes Show, Eq VS Functor, Foldable, Applicative need different type constructors:
---    Show, Eq need un-parametrized types, so by writing instance (Eq a) => Eq (Fpair s a) you block the type parameters (s and a) and leave no "free" parameters
---    In fact, if instead you write only instance (Eq a) => Eq Fpair other than not having a way to say that a should implement show, you get
---    the error:
---         Expecting two more arguments to ‘Fpair’
-          --      Expected a type, but ‘Fpair’ has kind ‘* -> * -> *’
---    Functor, Foldable, Applicative instead need type constructors with a single free type parameter, i.e. the type of the elements
---    inside the "container": you can see that e.g. fmap :: (a -> b) -> f a -> f b wants a type with a single free type param. describing
---    the type of the element contained (like in lists). So we "block" the separator type parameter s and leave as free one the contained
---    elements type parameter a, by writing instance Functor (Fpair s).
---    if instead we wrote instance Functor Fpair we would get:
---        Expecting one more argument to ‘Fpair’
-          --      Expected kind ‘* -> *’, but ‘Fpair’ has kind ‘* -> * -> *’
---    if instead we wrote instance Functor (Fpair s a) we would get:
---        Expected kind ‘* -> *’, but ‘Fpair s a’ has kind ‘*’
+MY QUESTIONS
+DO DATA CONSTRUCTORS NEED TO HAVE DIFFERENT NAMES EVEN IF DIFFERENT NUMBER OF ARGS? -> yes
+DOES EQ WORK MY WAY OR NEED TO USE SIMPLIFY FROM SOL? -> not using simplify but separate the cases
+WOULD APPLICATIVE HAVE BEEN FINE LIKE I DID? I WAS THOUGHT ABOUT HOW SOL DOES IT BUT THOUGHT MY WAY MORE SIMILAR TO LISTS COMPUTING ALL PERMUTATIONS
+    -> no, because when compiling you get
+       Occurs check: cannot construct the infinite type: b ~ Fpair s b
+        --        Expected type: Fpair s b
+        --        Actual type: Fpair s (Fpair s b)
+    which means in general with apply you need to output a "flat" object due to the signature (<*>) :: f (a -> b) -> f a -> f b
+DO FOLDABLE AND EQ MATCH ALL CASES? -> add separate cases
+WHY INVERTED a AND s IN TYPE CONSTRUCTOR AND WHY Fpair TYPE CONSTRUCTOR WITH DIFFERENT # ARGS IN INSTANCE DECLARATIONS?
+-> the classes Show, Eq VS Functor, Foldable, Applicative need different type constructors:
+   Show, Eq need un-parametrized types, so by writing instance (Eq a) => Eq (Fpair s a) you block the type parameters (s and a) and leave no "free" parameters
+   In fact, if instead you write only instance (Eq a) => Eq Fpair other than not having a way to say that a should implement show, you get
+   the error:
+        Expecting two more arguments to ‘Fpair’
+               Expected a type, but ‘Fpair’ has kind ‘* -> * -> *’
+   Functor, Foldable, Applicative instead need type constructors with a single free type parameter, i.e. the type of the elements
+   inside the "container": you can see that e.g. fmap :: (a -> b) -> f a -> f b wants a type with a single free type param. describing
+   the type of the element contained (like in lists). So we "block" the separator type parameter s and leave as free one the contained
+   elements type parameter a, by writing instance Functor (Fpair s).
+   if instead we wrote instance Functor Fpair we would get:
+       Expecting one more argument to ‘Fpair’
+               Expected kind ‘* -> *’, but ‘Fpair’ has kind ‘* -> * -> *’
+   if instead we wrote instance Functor (Fpair s a) we would get:
+       Expected kind ‘* -> *’, but ‘Fpair s a’ has kind ‘*’
+-}
 
 -- how restrict b to be instance Show? Just need to do that in methods that require it (i.e. Show)
 data Fpair s a = Pair a a | Fpair a a s
