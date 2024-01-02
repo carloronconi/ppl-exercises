@@ -1,4 +1,5 @@
-
+-module(exam20200207).
+-compile(export_all).
 
 % We want to create a simplified implementation of the “Reduce” part of the MapReduce paradigm. To this end, define a
 % process “reduce_manager” that keeps track of a pool of reducers. When it is created, it stores a user-defined
@@ -67,8 +68,19 @@ run_reducer(ReduceF, Accum) ->
     receive
         {reduce_partial, Num} ->
             Res = apply(?MODULE, ReduceF, [Accum | Num]),
-            run_reducer(ReduceF, Res)
+            run_reducer(ReduceF, Res);
         print_partial_result ->
             io:fwrite("~d", Accum)
     end.
 
+% TEST run by doing > exam20200207:word_count("sopra la panca la capra campa sotto la panca la capra crepa").
+word_count(Text) ->
+    RMPid = start_reduce_mgr(fun(X, Y) -> X + Y end),
+    lists:foreach(fun(Word) -> RMPid ! {reduce, Word, 1} end, string:split(Text, " ", all)),
+    RMPid ! print_results,
+    ok.
+% test fails:
+% =ERROR REPORT==== 2-Jan-2024::16:40:55.452112 ===
+%  Error in process <0.134.0> with exit value:
+%  {{badkey,"sopra"},
+%   [{exam20200207,run_mgr,2,[{file,"exam20200207.erl"},{line,51}]}]}
