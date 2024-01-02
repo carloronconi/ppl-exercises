@@ -47,30 +47,26 @@ run_mgr(ReduceF, ReducersMap) ->
             case maps:find(Key, ReducersMap) of
                 {K, ReducerId} -> ReducersMapUpdated = ReducersMap;
                 _ ->
-                    RedId = spawn(fun () -> run_reducer(ReduceF, 0) end),
-                    ReducersMapUpdated = ReducersMap#{Key := RedId}
+                    RedId = spawn(fun () -> run_reducer(ReduceF, 0, Key) end),
+                    ReducersMapUpdated = ReducersMap#{Key => RedId} % Using := instead of => is what broke my solution!
             end,
             #{Key := Reducer} = ReducersMapUpdated,
             Reducer ! {reduce_partial, Num};
         print_results ->
-            maps:foreach(
-                fun (K, R) ->
-                    io:fwrite("~s: ", K),
-                    R ! print_partial_result,
-                    io:fwrite("~n") end,
+            maps:foreach( % I didn't pass the key to run_reducer because I printed it here but due to multithreading printing from both actors messes up output
+                fun (K, R) -> R ! print_partial_result end,
                 ReducersMap
             ),
             ReducersMapUpdated = ReducersMap
     end,
     run_mgr(ReduceF, ReducersMapUpdated).
 
-run_reducer(ReduceF, Accum) ->
+run_reducer(ReduceF, Accum, Key) ->
     receive
         {reduce_partial, Num} ->
-            Res = apply(?MODULE, ReduceF, [Accum | Num]),
-            run_reducer(ReduceF, Res);
+            run_reducer(ReduceF, ReduceF(Accum, Num), Key); % Using apply didn't work, use this easier way instead
         print_partial_result ->
-            io:fwrite("~d", Accum)
+            io:format("~p: ~p~n", [Key, Accum])
     end.
 
 % TEST run by doing > exam20200207:word_count("sopra la panca la capra campa sotto la panca la capra crepa").
