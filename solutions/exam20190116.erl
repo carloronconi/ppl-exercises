@@ -15,12 +15,17 @@ process(Behavior, Creator) ->
             Creator ! {Behavior(Data)},
             process(Behavior, Creator);
         {stop, Creator} ->
-            ok
+            ok;
+        _ -> process(Behavior, Creator) % add this line to discard, not sure it was necessary (tested below with
+                                        % testEnemy and it was already working fine)
     end.
+
+testEnemy(P) -> P ! {run, 2, self()}.
 
 run() ->
     Self = self(),
     P = spawn(?MODULE, process, [fun (X) -> X + 1 end, Self]),
+    spawn(?MODULE, testEnemy, [P]),
     P ! {load, fun (X) -> X * 2 end, Self},
     P ! {run, 3, Self},
     receive
