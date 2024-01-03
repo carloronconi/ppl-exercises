@@ -32,7 +32,9 @@ runStateM (StateT f) st = f st
 -- this next thing doesn't run but delete it, compile, and in ghci run:
 -- > runStateM (do x <- return 5; return (x+1)) 333
 -- > (6, 333)
+{-
 ex = runStateM (do
   x <- return 5
   return (x+1))
   333
+-}
