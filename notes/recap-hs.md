@@ -1,5 +1,14 @@
 # Haskell recap
 
+## As-patterns
+```
+dequeue :: Queue a -> (Maybe a, Queue a)
+dequeue q@(Queue [] []) = (Nothing, q)
+dequeue (Queue (x:xs) v) = (Just x, Queue xs v)
+dequeue (Queue [] v) = dequeue (Queue (reverse v) [])
+```
+`q@` is used to pattern match both the whole Queue struct and its internal values.
+
 ## Cons and lists
 with `elm :: a` and `lst :: [a]`
 `elm : lst` and `[elm] ++ lst` do the same thing: pre-pend the element to the list `[elm, lst...]`
