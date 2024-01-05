@@ -24,6 +24,7 @@ Make Queue an instance of Applicative
 -- (i)
 data Queue a = Queue [a] [a] deriving Show
 
+-- it is already implemented in prelude as `reverse lst` (exactly same signature!)
 revlst :: [a] -> [a]
 revlst l = revlst2 l []
 
@@ -46,6 +47,9 @@ dequeue :: Queue a -> (Queue a, a) -- could change to Maybe a for when dequeuein
 dequeue (Queue (x:xs) []) = ((Queue xs []), x)
 dequeue (Queue [] l) = dequeue (Queue (revlst l) []) -- other cases are wrong states
 
+emptyq = (Queue [] []) -- to avoid wrong representation (with both lists full) export this and enqueue/dequeue
+                       -- or (as done in sol) just transform those by turning (Queue x y) into (Queue (x ++ reverse y) [])
+
 -- (ii)
 instance Foldable Queue where
   foldr f z (Queue l []) = foldr f z l
@@ -67,3 +71,5 @@ instance Applicative Queue where
 dequeue $ enqueue (Queue [1, 2, 3] []) 4
 > (Queue [2,3,4] [],1)
 -}
+
+-- TRY IF PROF'S SOLUTION IS BETTER
