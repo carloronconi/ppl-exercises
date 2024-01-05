@@ -23,14 +23,14 @@ proportional to n (reverse), but all the other dequeues take constant time.
 This makes the operation O(1) amortised that is why it is acceptable in many
 applications.
 
+(i)
 1) Define Queue and make it an instance of Eq
 2) Define enqueue and dequeue, stating their types
 
-
-HASKELL (ii)
+(ii)
 Make Queue an instance of Functor and Foldable
 
-HASKELL (iii)
+(iii)
 Make Queue an instance of Applicative
 
 ERLANG
