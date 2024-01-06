@@ -53,3 +53,25 @@ Based on the above states, the following will happen when an exit signal is rece
     - set, and the corresponding link is active. Note that an exit reason of kill will not terminate the process in this case and it will not be converted to killed.
 
 The converted message will be on the form {'EXIT', SenderID, Reason} where Reason equals the exit reason of the exit signal and SenderID is the identifier of the process or port that sent the exit signal.
+
+## Looping with list comprehensions
+Using list comprehensions allows to do something like `for_each(Child in Children) {do something with Child}`.
+It also allows to wait for all the replies for each of the same children very easily.
+```
+node_comp_dist(Parent, Elem, Children, Value) ->    
+    [Child ! {get_distance, Value} || {Child, _} <- Children],    % here
+    Dists = [receive                                              
+                {distance, Value, Child, D} ->                     
+                    D + Weight;                 
+                {not_found, Value, Child} ->                     
+                    not_found             
+            end || {Child, Weight} <- Children],                  % here
+    FoundDists = lists:filter(fun erlang:is_integer/1, Dists),    
+    case FoundDists of        
+        [] ->            
+            Parent ! {not_found, Value, self()};        
+        _ ->            
+            Parent ! {distance, Value, self(), lists:min(FoundDists)}    
+    end,    
+    node_wait(Parent, Elem, Children).
+```
