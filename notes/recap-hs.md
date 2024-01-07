@@ -1,5 +1,15 @@
 # Haskell recap
 
+## Pattern matching for lists
+Pattern matching for lists with 0, exactly 1, exactly 2, more than 2 elements:
+```
+add_two_greatest_lst [] = 0
+add_two_greatest_lst [x] = x
+add_two_greatest_lst [x,y] = x + y
+add_two_greatest_lst (x:y:rst) | x >= y = add_two_greatest x y rst
+                               | x < y = add_two_greatest y x rst
+```
+
 ## As-patterns
 ```
 dequeue :: Queue a -> (Maybe a, Queue a)
@@ -12,6 +22,8 @@ dequeue (Queue [] v) = dequeue (Queue (reverse v) [])
 ## Cons and lists
 with `elm :: a` and `lst :: [a]`
 `elm : lst` and `[elm] ++ lst` do the same thing: pre-pend the element to the list `[elm, lst...]`
+
+The equivalent of Scheme's `(car l)` and `(cdr l)` are `head l` and `tail l`.
 
 ## Signatures when instancing type classes Show, Eq vs Functor, Foldable, Applivative
 `data Fpair s a = Pair a a | Fpair a a s`
