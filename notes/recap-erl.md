@@ -4,10 +4,8 @@
 
 There are many signals that processes and ports use to communicate. The list below contains the most important signals.
 
-message
-Sent when using the send operator !, or when calling one of the erlang:send/2,3 or erlang:send_nosuspend/2,3 BIFs.
-link
-Sent when calling the link/1 BIF.
+- message: Sent when using the send operator !, or when calling one of the erlang:send/2,3 or erlang:send_nosuspend/2,3 BIFs.
+- link: Sent when calling the link/1 BIF.
 unlink
 Sent when calling the unlink/1 BIF.
 exit
@@ -74,4 +72,18 @@ node_comp_dist(Parent, Elem, Children, Value) ->
             Parent ! {distance, Value, self(), lists:min(FoundDists)}    
     end,    
     node_wait(Parent, Elem, Children).
+```
+
+## Registering Pids to access them as global vars
+See ND automaton example on slides: registering allows to send messages without passing Pids as arguments:
+```
+start() ->
+    register(q0, spawn(fun() -> q0() end)), % here, associating atom q0 as synonim for Pid
+    register(q1, spawn(fun() -> q1() end)),
+    register(q2, spawn(fun() -> q2() end)),
+    register(q3, spawn(fun() -> q3() end)),
+    register(q4, spawn(fun() -> q4() end)).
+
+read_string(S) ->
+    q0 ! {S, S}, ok. % here: using q0 (careful, it must be an atom!) to message the registered Pid
 ```
