@@ -1,5 +1,19 @@
 # Haskell recap
 
+## List comprehensions: a way to loop over lists
+The operation on the right of the arrow has to be/yield a list:
+```
+zipApp x y = [f x | (f,x) <- zip x y] -- apply f to x
+```
+With more than one list on the right of the arrow, the produced values
+are the cartesian product of the lists:
+```
+[(x, y) | x <- [1 ,2], y <- "ciao"]
+
+> [(1 , ’ c ’) ,(1 , ’ i ’) ,(1 , ’ a ’) ,(1 , ’ o ’) ,
+(2 , ’c ’) ,(2 , ’ i ’) ,(2 , ’ a ’) ,(2 , ’ o ’)]
+```
+
 ## Pattern matching for lists
 Pattern matching for lists with 0, exactly 1, exactly 2, more than 2 elements:
 ```
