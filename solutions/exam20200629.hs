@@ -72,4 +72,34 @@ dequeue $ enqueue (Queue [1, 2, 3] []) 4
 > (Queue [2,3,4] [],1)
 -}
 
--- TRY IF PROF'S SOLUTION IS BETTER
+-- PROF'S SOLUTION
+{-
+data Queue a = Queue [a] [a] deriving Show
+
+to_list (Queue x y) = x ++ reverse y
+
+instance Eq a => Eq (Queue a) where
+    q1 == q2 = (to_list q1) == (to_list q2)
+
+enqueue :: a -> Queue a -> Queue a
+enqueue x (Queue pop push) = Queue pop (x:push)
+
+dequeue :: Queue a -> (Maybe a, Queue a)
+dequeue q@(Queue [] []) = (Nothing, q)
+dequeue (Queue (x:xs) v) = (Just x, Queue xs v)
+dequeue (Queue [] v) = dequeue (Queue (reverse v) [])
+
+instance Functor Queue where
+    fmap f (Queue x y) = Queue (fmap f x) (fmap f y)
+
+instance Foldable Queue where
+    foldr f z q = foldr f z $ to_list q
+
+q1 +++ (Queue x y) = Queue ((to_list q1) ++ x) y
+
+qconcat q = foldr (+++) (Queue [][]) q
+
+instance Applicative Queue where
+    pure x = Queue [x] []
+    fs <*> xs = qconcat $ fmap (\f -> fmap f xs) fs
+-}
