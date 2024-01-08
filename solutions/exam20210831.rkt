@@ -21,8 +21,9 @@ injective and surjective).
   (create-matrix-rec n d 0 (make-vector n #())))
 
 ; 2)
-; my original solution looks good but without call/cc it always returns false!!
-; couldn't find an explaination, booleans are mutable
+; my original solution using flag instead of call/cc DOES work!
+; initially didn't work (always returned #f) because of a signle wrong parenthesis that put (loopi (+ i 1)) inside
+; of loopj instead of right after
 (define (check-bi M)
   (let* ((size (vector-length M))
          (check (create-matrix size #f))
@@ -32,17 +33,23 @@ injective and surjective).
         (let loopj ((j 0))
           (when (< j size)
             (let* ((mypair (vector-ref (vector-ref M i) j)) (x (car mypair)) (y (car (cdr mypair))))
+              (displayln i) ; added for debugging
+              (displayln j) ; added for debugging
               (if (vector-ref (vector-ref check x) y)
-                  (set! flag #f)
-                  (vector-set! (vector-ref check x) y #t))
-            (loopj (+ j 1))))
-        (loopi (+ i 1)))))
+                  (begin
+                    (displayln "found") ; added for debugging
+                    (set! flag #f))
+                  (begin
+                    (displayln "not found") ; added for debugging
+                    (vector-set! (vector-ref check x) y #t)))
+              (loopj (+ j 1)))))
+        (loopi (+ i 1))))
     ;(when flag
     ; (set! flag (equal? check (create-matrix size 1)))) not needed: if iterated over all positions already sure it's surjective
     flag))
 
-; same as original but adding call/cc works!
-; lesson learnt: don't use flags
+; same as original inspired by prof's solution using call/cc works!
+; more elegant: if it finds a match it returns right away instead of looping the whole matrix
 (define (check-bi2 M)
   (let* ((size (vector-length M))
          (check (create-matrix size #f)))
@@ -58,32 +65,6 @@ injective and surjective).
                        (loopj (+ j 1))))
                    (loopi (+ i 1))))
                #t))))
-
-#|
-attempt avoiding call/cc with mutable vector instead of boolean still didn't work
-(define (check-bi M)
-  (let* ((size (vector-length M))
-         (check (create-matrix size #f))
-         (flag (make-vector 1 1)))
-         ;(flag #t))
-    (let loopi ((i 0))
-      (when (< i size)
-        (let loopj ((j 0))
-          (when (< j size)
-            (let* ((mypair (vector-ref (vector-ref M i) j)) (x (car mypair)) (y (car (cdr mypair))))
-              (if (vector-ref (vector-ref check x) y)
-                  ;(set! flag #f)
-                  (vector-set! flag 0 0)
-                  (vector-set! (vector-ref check x) y #t))
-            (loopj (+ j 1))))
-        (loopi (+ i 1)))))
-    ;(when flag
-    ; (set! flag (equal? check (create-matrix size 1)))) not needed: if iterated over all positions already sure it's surjective
-
-    ;flag))
-    (vector-ref flag 0)))
-|#
-
 
 (check-bi #(#((0 0) (0 1)) #((1 0) (1 1))))
 (check-bi2 #(#((0 0) (0 1)) #((1 0) (1 1))))
